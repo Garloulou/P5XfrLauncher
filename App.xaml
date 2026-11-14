@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="LauncherP5XFr.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:LauncherP5XFr">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Persona 5 Palette & Theme Brushes -->
+            <SolidColorBrush x:Key="P5CrimsonBrush" Color="#E60012" />
+            <SolidColorBrush x:Key="P5CrimsonHoverBrush" Color="#FF1E2F" />
+            <SolidColorBrush x:Key="P5CrimsonPressedBrush" Color="#C0000F" />
+            <SolidColorBrush x:Key="P5GoldBrush" Color="#F5A623" />
+            <SolidColorBrush x:Key="P5DarkBackgroundBrush" Color="#121214" />
+            <SolidColorBrush x:Key="P5CardBackgroundBrush" Color="#202024" />
+            <SolidColorBrush x:Key="P5CardBorderBrush" Color="#323238" />
+
+            <!-- Card Container Style -->
+            <Style x:Key="FluentCardBorderStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="16" />
+            </Style>
+
+            <!-- Big JOUER Button Style -->
+            <Style x:Key="PlayButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource P5CrimsonBrush}" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="Height" Value="60" />
+                <Setter Property="Padding" Value="32,8" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+            </Style>
+
+            <!-- Settings Card Style -->
+            <Style x:Key="SettingsCardBorderStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="16,12" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

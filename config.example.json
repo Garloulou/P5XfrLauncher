@@ -1,0 +1,16 @@
+{
+  "gamePath": "",
+  "gameExeName": "P5X.exe",
+  "translationEnabled": true,
+  "useDoorstopConfigToggle": false,
+  "theme": "Default",
+  "language": "fr-FR",
+  "launchViaSteam": true,
+  "steamAppId": "3061570",
+  "customArguments": "",
+  "translationRepo": "VotrePseudo/P5X-Traduction-FR",
+  "launcherRepo": "VotrePseudo/LauncherP5XFr",
+  "bepInExRepo": "BepInEx/BepInEx",
+  "autoInstallBepInEx": true,
+  "translationAssetPattern": "(?i)translation.*\\.zip"
+}

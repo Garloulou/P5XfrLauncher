@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="LauncherP5XFr.Views.AboutPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:LauncherP5XFr.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="24,12,24,24" RowSpacing="16" MaxWidth="950" HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Header Card with Icon and Version -->
+            <Border Grid.Row="0" Style="{StaticResource FluentCardBorderStyle}" Padding="24">
+                <StackPanel Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                        <Border Background="{StaticResource P5CrimsonBrush}" Width="48" Height="48" CornerRadius="8" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE7FC;" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Persona 5: The Phantom X" FontSize="22" FontWeight="Bold" />
+                            <TextBlock Text="Launcher &amp; Auto-Updater Français (PC)" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                        <Border Background="{StaticResource P5CrimsonBrush}" CornerRadius="4" Padding="8,3">
+                            <TextBlock x:Name="LauncherVersionTextBlock" Text="v1.0.0" FontSize="11" FontWeight="Bold" Foreground="White" />
+                        </Border>
+                        <Border Background="{ThemeResource SystemFillColorNeutralBackgroundBrush}" CornerRadius="4" Padding="8,3">
+                            <TextBlock Text="WinUI 3 / Windows App SDK" FontSize="11" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Credits & Community Card -->
+            <Border Grid.Row="1" Style="{StaticResource FluentCardBorderStyle}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Crédits &amp; Remerciements" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock Text="Ce launcher a été spécialement conçu pour la communauté française de Persona 5: The Phantom X. Il permet de gérer de manière transparente et réversible l'injection BepInEx et les mises à jour de traduction publiées sur GitHub."
+                               FontSize="13" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+                    <MenuFlyoutSeparator Margin="0,4" />
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Équipe de Traduction FR" FontWeight="SemiBold" FontSize="13" />
+                            <TextBlock Text="Traduction, relecture, localisation des textures et intégration des scripts." FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="Projet BepInEx &amp; Doorstop" FontWeight="SemiBold" FontSize="13" />
+                            <TextBlock Text="Framework d'injection et de modding pour les jeux Unity PC." FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                        <HyperlinkButton Content="Dépôt GitHub du Launcher" NavigateUri="https://github.com/P5X-FR/LauncherP5XFr" />
+                        <HyperlinkButton Content="Dépôt GitHub de la Traduction" NavigateUri="https://github.com/P5X-FR/P5X-Translation-FR" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Legal Disclaimer Card -->
+            <Border Grid.Row="2" Style="{StaticResource FluentCardBorderStyle}" Padding="20">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Mentions Légales" FontSize="14" FontWeight="SemiBold" />
+                    <TextBlock Text="Persona 5: The Phantom X (P5X), les personnages, logos et univers sont des marques déposées d'ATLUS, SEGA et Perfect World Co., Ltd. Ce launcher est un projet amateur indépendant à but non lucratif, non affilié et non sponsorisé par les détenteurs de droits."
+                               FontSize="12" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Technical Environment Details -->
+            <Border Grid.Row="3" Style="{StaticResource FluentCardBorderStyle}" Padding="20">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Informations Système" FontSize="14" FontWeight="SemiBold" />
+                    <TextBlock x:Name="SysInfoTextBlock" FontSize="12" FontFamily="Consolas" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>
