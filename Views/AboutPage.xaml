@@ -95,7 +95,7 @@
 
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
                         <HyperlinkButton Content="Dépôt GitHub du Launcher" NavigateUri="https://github.com/Garloulou/P5XfrLauncher" />
-                        <HyperlinkButton Content="Dépôt GitHub de la Traduction" NavigateUri="https://github.com/Garloulou/P5XfrLauncher" />
+                        <HyperlinkButton Content="Dépôt GitHub de la Traduction" NavigateUri="https://github.com/Gyotre/P5X-Traduction-FR" />
                     </StackPanel>
                 </StackPanel>
             </Border>

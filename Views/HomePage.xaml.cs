@@ -63,8 +63,7 @@ public sealed partial class HomePage : Page
                     InstallBepInExButton.Visibility = Visibility.Visible;
                     MainInfoBar.IsOpen = true;
                 }
-                else if (!string.IsNullOrWhiteSpace(_configService.Config.TranslationRepo) &&
-                         !_configService.Config.TranslationRepo.Contains("[OWNER/REPO]"))
+                else
                 {
                     // Check for translation update in background
                     _ = CheckTranslationUpdateSilentlyAsync(gameDir);
