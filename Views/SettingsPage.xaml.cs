@@ -45,6 +45,7 @@ public sealed partial class SettingsPage : Page
         GamePathTextBox.Text = cfg.GamePath ?? "";
         GameExeTextBox.Text = cfg.GameExeName ?? "P5X.exe";
         LaunchViaSteamToggleSwitch.IsOn = cfg.LaunchViaSteam;
+        BepInExConsoleToggleSwitch.IsOn = cfg.EnableBepInExConsole;
 
         if (cfg.UseDoorstopConfigToggle)
         {
@@ -154,6 +155,40 @@ public sealed partial class SettingsPage : Page
         if (_isInitializing) return;
         _configService.Config.LaunchViaSteam = LaunchViaSteamToggleSwitch.IsOn;
         _configService.Save();
+    }
+
+    private void BepInExConsoleToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_isInitializing) return;
+
+        _configService.Config.EnableBepInExConsole = BepInExConsoleToggleSwitch.IsOn;
+        _configService.Save();
+
+        var gameDir = _gameLocator.GetGameDirectory();
+        if (!string.IsNullOrEmpty(gameDir))
+        {
+            try
+            {
+                var targetDir = GameLocator.GetGameClientDirectory(gameDir);
+                var configDir = Path.Combine(targetDir, "BepInEx", "config");
+                if (Directory.Exists(configDir))
+                {
+                    var cfgPath = Path.Combine(configDir, "BepInEx.cfg");
+                    var enabled = BepInExConsoleToggleSwitch.IsOn;
+                    if (File.Exists(cfgPath))
+                    {
+                        var content = File.ReadAllText(cfgPath);
+                        var regex = new System.Text.RegularExpressions.Regex(@"(\[Logging\.Console\][\s\S]*?Enabled\s*=\s*)(true|false)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        if (regex.IsMatch(content))
+                        {
+                            content = regex.Replace(content, $"${{1}}{(enabled ? "true" : "false")}", 1);
+                            File.WriteAllText(cfgPath, content);
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
     }
 
     private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

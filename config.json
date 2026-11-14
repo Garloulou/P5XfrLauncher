@@ -6,5 +6,6 @@
   "theme": "Default",
   "language": "fr-FR",
   "launchViaSteam": true,
+  "enableBepInExConsole": true,
   "customArguments": ""
 }

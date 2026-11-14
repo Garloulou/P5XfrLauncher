@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using LauncherP5XFr.Models;
 using LauncherP5XFr.Services;
 
@@ -93,6 +94,10 @@ public sealed class GameLauncherService : IGameLauncherService
         if (_modToggleService.IsTranslationInstalled(gameDir))
         {
             _modToggleService.SetTranslationActive(gameDir, enableTranslation);
+            if (enableTranslation)
+            {
+                EnsureBepInExConsoleConfig(gameDir);
+            }
         }
         else if (enableTranslation)
         {
@@ -150,6 +155,54 @@ public sealed class GameLauncherService : IGameLauncherService
         {
             _logger.Error($"Erreur lors du lancement direct du jeu : {ex.Message}", ex);
             throw;
+        }
+    }
+
+    private void EnsureBepInExConsoleConfig(string gameDir)
+    {
+        try
+        {
+            var targetDir = GameLocator.GetGameClientDirectory(gameDir);
+            var configDir = Path.Combine(targetDir, "BepInEx", "config");
+            if (!Directory.Exists(configDir))
+            {
+                Directory.CreateDirectory(configDir);
+            }
+
+            var cfgPath = Path.Combine(configDir, "BepInEx.cfg");
+            var enabled = _configService.Config.EnableBepInExConsole;
+
+            if (File.Exists(cfgPath))
+            {
+                var content = File.ReadAllText(cfgPath);
+                if (content.Contains("[Logging.Console]"))
+                {
+                    var regex = new Regex(@"(\[Logging\.Console\][\s\S]*?Enabled\s*=\s*)(true|false)", RegexOptions.IgnoreCase);
+                    if (regex.IsMatch(content))
+                    {
+                        content = regex.Replace(content, $"${{1}}{(enabled ? "true" : "false")}", 1);
+                        File.WriteAllText(cfgPath, content);
+                        _logger.Info($"Configuration console BepInEx mise à jour (Enabled = {enabled}) dans '{cfgPath}'");
+                        return;
+                    }
+                }
+            }
+
+            var newConfig = $@"[Logging.Console]
+Enabled = {(enabled ? "true" : "false")}
+ShiftWindowPosition = false
+StandardOutType = Everything
+
+[Logging.Disk]
+LogLevels = All
+WriteUnityLog = true
+";
+            File.WriteAllText(cfgPath, newConfig);
+            _logger.Info($"Fichier BepInEx.cfg créé avec console {(enabled ? "ACTIVÉE" : "DÉSACTIVÉE")} dans '{cfgPath}'");
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Note: Impossible de configurer la console BepInEx : {ex.Message}");
         }
     }
 }

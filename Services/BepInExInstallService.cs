@@ -90,6 +90,46 @@ public sealed class BepInExInstallService : IBepInExInstallService
             ? _configService.Config.BepInExRepo.Trim()
             : AppConstants.DefaultBepInExRepo;
 
+        var targetDir = GameLocator.GetGameClientDirectory(gameDir);
+
+        // 1. If repo is the P5X translation project, download preconfigured BepInEx 6 IL2CPP suite
+        if (repo.Equals(AppConstants.DefaultBepInExRepo, StringComparison.OrdinalIgnoreCase) ||
+            repo.Contains("P5X-Traduction", StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.Info($"Téléchargement du pack BepInEx IL2CPP préconfiguré pour P5X depuis https://github.com/{repo}...");
+            progress?.Report(new DownloadProgressInfo(0, 0, 0, 0, "Téléchargement du pack BepInEx IL2CPP & AutoTranslator..."));
+
+            var tempZip = Path.Combine(Path.GetTempPath(), $"bepinex_p5x_{Guid.NewGuid():N}.zip");
+            try
+            {
+                var archiveUrl = $"https://github.com/{repo}/archive/refs/heads/main.zip";
+                await DownloadAssetWithProgressAsync(archiveUrl, 0, tempZip, progress, ct).ConfigureAwait(false);
+
+                progress?.Report(new DownloadProgressInfo(0, 0, 100, 0, $"Extraction des composants dans {Path.GetFileName(targetDir)}..."));
+                _logger.Info($"Extraction de BepInEx IL2CPP dans '{targetDir}'...");
+
+                ExtractPreconfiguredPackage(tempZip, targetDir);
+
+                // Synchronize proxy to root for compatibility
+                SyncToRoot(targetDir, gameDir);
+
+                // Ensure console is configured
+                EnsureConsoleConfig(targetDir);
+
+                _logger.Info($"BepInEx IL2CPP et XUnity.AutoTranslator installés avec succès dans '{targetDir}'.");
+                progress?.Report(new DownloadProgressInfo(0, 0, 100, 0, "BepInEx IL2CPP et AutoTranslator installés avec succès !"));
+                return (true, $"BepInEx IL2CPP et AutoTranslator installés avec succès dans {Path.GetFileName(targetDir)} !");
+            }
+            finally
+            {
+                if (File.Exists(tempZip))
+                {
+                    try { File.Delete(tempZip); } catch { }
+                }
+            }
+        }
+
+        // 2. Fallback to GitHub releases (e.g. for custom BepInEx repo)
         _logger.Info($"Recherche de la dernière version de BepInEx sur https://github.com/{repo}...");
         progress?.Report(new DownloadProgressInfo(0, 0, 0, 0, "Recherche de la dernière version de BepInEx..."));
 
@@ -135,35 +175,12 @@ public sealed class BepInExInstallService : IBepInExInstallService
                 await DownloadAssetWithProgressAsync(asset.BrowserDownloadUrl, asset.Size, tempZip, progress, ct).ConfigureAwait(false);
 
                 // Extract to game client directory (client/pc)
-                var targetDir = GameLocator.GetGameClientDirectory(gameDir);
                 progress?.Report(new DownloadProgressInfo(asset.Size, asset.Size, 100, 0, $"Extraction de BepInEx dans {Path.GetFileName(targetDir)}..."));
                 _logger.Info($"Extraction de BepInEx dans '{targetDir}'...");
                 ExtractZipSafely(tempZip, targetDir);
 
-                // If targetDir is client/pc, also ensure doorstop and proxy are present in root for compatibility
-                if (!string.Equals(targetDir, gameDir, StringComparison.OrdinalIgnoreCase))
-                {
-                    try
-                    {
-                        var winhttpSrc = Path.Combine(targetDir, "winhttp.dll");
-                        var winhttpDst = Path.Combine(gameDir, "winhttp.dll");
-                        if (File.Exists(winhttpSrc) && !File.Exists(winhttpDst))
-                        {
-                            File.Copy(winhttpSrc, winhttpDst, true);
-                        }
-
-                        var doorstopSrc = Path.Combine(targetDir, "doorstop_config.ini");
-                        var doorstopDst = Path.Combine(gameDir, "doorstop_config.ini");
-                        if (File.Exists(doorstopSrc) && !File.Exists(doorstopDst))
-                        {
-                            File.Copy(doorstopSrc, doorstopDst, true);
-                        }
-                    }
-                    catch (Exception syncEx)
-                    {
-                        _logger.Warn($"Note: Synchronisation vers root : {syncEx.Message}");
-                    }
-                }
+                SyncToRoot(targetDir, gameDir);
+                EnsureConsoleConfig(targetDir);
 
                 _logger.Info($"BepInEx {release.TagName} installé avec succès dans '{targetDir}'.");
                 progress?.Report(new DownloadProgressInfo(asset.Size, asset.Size, 100, 0, $"BepInEx ({release.TagName}) installé avec succès !"));
@@ -249,6 +266,91 @@ public sealed class BepInExInstallService : IBepInExInstallService
             }
 
             entry.ExtractToFile(safeFilePath, overwrite: true);
+        }
+    }
+
+    private static void ExtractPreconfiguredPackage(string zipPath, string targetDir)
+    {
+        using var archive = ZipFile.OpenRead(zipPath);
+        const string marker = "05_Paquet_BepInEx_Preconfigure/A_COPIER_DANS_LE_JEU/";
+
+        foreach (var entry in archive.Entries)
+        {
+            var idx = entry.FullName.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            if (idx < 0) continue;
+
+            var relPath = entry.FullName.Substring(idx + marker.Length).TrimStart('/', '\\');
+            if (string.IsNullOrWhiteSpace(relPath)) continue;
+
+            if (entry.FullName.EndsWith("/") || entry.FullName.EndsWith("\\"))
+            {
+                var safeDirPath = PathSecurityHelper.GetSafeExtractionPath(targetDir, relPath);
+                Directory.CreateDirectory(safeDirPath);
+                continue;
+            }
+
+            var safeFilePath = PathSecurityHelper.GetSafeExtractionPath(targetDir, relPath);
+            var parentDir = Path.GetDirectoryName(safeFilePath);
+            if (!string.IsNullOrEmpty(parentDir))
+            {
+                Directory.CreateDirectory(parentDir);
+            }
+
+            entry.ExtractToFile(safeFilePath, overwrite: true);
+        }
+    }
+
+    private void SyncToRoot(string targetDir, string gameDir)
+    {
+        if (string.Equals(targetDir, gameDir, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        try
+        {
+            var winhttpSrc = Path.Combine(targetDir, "winhttp.dll");
+            var winhttpDst = Path.Combine(gameDir, "winhttp.dll");
+            if (File.Exists(winhttpSrc) && !File.Exists(winhttpDst))
+            {
+                File.Copy(winhttpSrc, winhttpDst, true);
+            }
+
+            var doorstopSrc = Path.Combine(targetDir, "doorstop_config.ini");
+            var doorstopDst = Path.Combine(gameDir, "doorstop_config.ini");
+            if (File.Exists(doorstopSrc) && !File.Exists(doorstopDst))
+            {
+                File.Copy(doorstopSrc, doorstopDst, true);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Note: Synchronisation vers root : {ex.Message}");
+        }
+    }
+
+    private void EnsureConsoleConfig(string targetDir)
+    {
+        try
+        {
+            var configDir = Path.Combine(targetDir, "BepInEx", "config");
+            Directory.CreateDirectory(configDir);
+
+            var cfgPath = Path.Combine(configDir, "BepInEx.cfg");
+            var enabled = _configService.Config.EnableBepInExConsole;
+
+            var newConfig = $@"[Logging.Console]
+Enabled = {(enabled ? "true" : "false")}
+ShiftWindowPosition = false
+StandardOutType = Everything
+
+[Logging.Disk]
+LogLevels = All
+WriteUnityLog = true
+";
+            File.WriteAllText(cfgPath, newConfig);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn($"Note: Impossible de configurer la console BepInEx : {ex.Message}");
         }
     }
 }

@@ -18,6 +18,8 @@ public sealed class AppConfig
 
     public bool LaunchViaSteam { get; set; } = true;
 
+    public bool EnableBepInExConsole { get; set; } = true;
+
     public string? CustomArguments { get; set; } = "";
 
     // Optional overrides for advanced users (ignored if null)

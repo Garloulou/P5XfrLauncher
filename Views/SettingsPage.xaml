@@ -94,6 +94,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <StackPanel Grid.Row="0" Spacing="3">
@@ -105,6 +106,20 @@
                             <RadioButton x:Name="RadioRenameDll" Content="Renommer winhttp.dll en winhttp.dll.disabled (Méthode principale recommandée, 100% réversible)" />
                             <RadioButton x:Name="RadioDoorstopConfig" Content="Modifier enabled = false dans doorstop_config.ini" />
                         </RadioButtons>
+
+                        <Grid Grid.Row="2" Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Spacing="2" VerticalAlignment="Center">
+                                <TextBlock Text="Console BepInEx (Invite de commandes)" FontWeight="SemiBold" />
+                                <TextBlock Text="Affiche la console noire BepInEx au lancement du jeu pour voir les logs du mod et de XUnity.AutoTranslator en direct" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+
+                            <ToggleSwitch x:Name="BepInExConsoleToggleSwitch" Grid.Column="1" Toggled="BepInExConsoleToggleSwitch_Toggled" VerticalAlignment="Center" />
+                        </Grid>
                     </Grid>
                 </Border>
             </StackPanel>
