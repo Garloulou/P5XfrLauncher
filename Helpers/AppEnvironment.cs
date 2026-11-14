@@ -36,4 +36,25 @@ public static class AppEnvironment
             return _appDirectory;
         }
     }
+
+    public static string? GetAssetPath(string fileName)
+    {
+        var dirs = new[]
+        {
+            Path.Combine(AppDirectory, "Assets"),
+            Path.Combine(AppContext.BaseDirectory, "Assets"),
+            Path.Combine(Directory.GetCurrentDirectory(), "Assets"),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets")
+        };
+
+        foreach (var dir in dirs)
+        {
+            if (!Directory.Exists(dir)) continue;
+            var fullPath = Path.Combine(dir, fileName);
+            if (File.Exists(fullPath))
+                return fullPath;
+        }
+
+        return null;
+    }
 }

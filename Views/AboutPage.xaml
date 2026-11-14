@@ -24,29 +24,47 @@
                 <ProgressBar x:Name="UpdateProgressBar" Visibility="Collapsed" IsIndeterminate="False" Value="0" Maximum="100" />
             </StackPanel>
 
-            <!-- Header Card with Icon and Version -->
-            <Border Grid.Row="1" Style="{StaticResource FluentCardBorderStyle}" Padding="24">
-                <StackPanel Spacing="12">
-                    <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
-                        <Border Background="{StaticResource P5CrimsonBrush}" Width="48" Height="48" CornerRadius="8" VerticalAlignment="Center">
-                            <FontIcon Glyph="&#xE7FC;" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Persona 5: The Phantom X" FontSize="22" FontWeight="Bold" />
-                            <TextBlock Text="Launcher &amp; Auto-Updater Français (PC)" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <!-- Header Card with Icon, Artwork and Version -->
+            <Border Grid.Row="1" Style="{StaticResource FluentCardBorderStyle}" Padding="20">
+                <Grid ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Game Capsule Art -->
+                    <Border x:Name="AboutCapsuleBorder" Grid.Column="0" CornerRadius="8" Width="72" Height="108"
+                            BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            VerticalAlignment="Center">
+                        <Grid Background="#1A1A1E">
+                            <Image x:Name="AboutCapsuleImage" Stretch="UniformToFill" />
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="8">
+                        <Image x:Name="AboutLogoImage" Height="38" Stretch="Uniform" HorizontalAlignment="Left" Visibility="Collapsed" />
+
+                        <StackPanel x:Name="AboutFallbackTitlePanel" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Border Background="{StaticResource P5CrimsonBrush}" Width="36" Height="36" CornerRadius="6" VerticalAlignment="Center">
+                                <FontIcon Glyph="&#xE7FC;" FontSize="18" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Persona 5: The Phantom X" FontSize="18" FontWeight="Bold" />
+                                <TextBlock Text="Launcher &amp; Auto-Updater Français (PC Steam)" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                            <Border Background="{StaticResource P5CrimsonBrush}" CornerRadius="4" Padding="8,3">
+                                <TextBlock x:Name="LauncherVersionTextBlock" Text="v1.0.2" FontSize="11" FontWeight="Bold" Foreground="White" />
+                            </Border>
+                            <Border Background="{ThemeResource SystemFillColorNeutralBackgroundBrush}" CornerRadius="4" Padding="8,3">
+                                <TextBlock Text="WinUI 3 / Windows App SDK" FontSize="11" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </Border>
+                            <Button x:Name="CheckUpdateButton" Content="Vérifier les mises à jour" Click="CheckUpdateButton_Click" Padding="10,3" Margin="8,0,0,0" />
                         </StackPanel>
                     </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                        <Border Background="{StaticResource P5CrimsonBrush}" CornerRadius="4" Padding="8,3">
-                            <TextBlock x:Name="LauncherVersionTextBlock" Text="v1.0.1" FontSize="11" FontWeight="Bold" Foreground="White" />
-                        </Border>
-                        <Border Background="{ThemeResource SystemFillColorNeutralBackgroundBrush}" CornerRadius="4" Padding="8,3">
-                            <TextBlock Text="WinUI 3 / Windows App SDK" FontSize="11" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                        </Border>
-                        <Button x:Name="CheckUpdateButton" Content="Vérifier les mises à jour" Click="CheckUpdateButton_Click" Padding="10,3" Margin="8,0,0,0" />
-                    </StackPanel>
-                </StackPanel>
+                </Grid>
             </Border>
 
             <!-- Credits & Community Card -->

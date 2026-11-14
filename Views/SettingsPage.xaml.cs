@@ -232,6 +232,28 @@ public sealed partial class SettingsPage : Page
         }
     }
 
+    private void OpenAssetsFolder_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var assetsDir = Path.Combine(Helpers.AppEnvironment.AppDirectory, "Assets");
+            if (!Directory.Exists(assetsDir))
+            {
+                Directory.CreateDirectory(assetsDir);
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = assetsDir,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            ShowInfo(InfoBarSeverity.Error, "Erreur", $"Impossible d'ouvrir le dossier Assets : {ex.Message}");
+        }
+    }
+
     private void ShowInfo(InfoBarSeverity severity, string title, string message)
     {
         SettingsInfoBar.Severity = severity;

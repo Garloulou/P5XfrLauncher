@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Imaging;
 using LauncherP5XFr.Models;
 using LauncherP5XFr.Services;
 
@@ -16,13 +17,45 @@ public sealed partial class AboutPage : Page
         InitializeComponent();
 
         var ver = Assembly.GetExecutingAssembly().GetName().Version;
-        LauncherVersionTextBlock.Text = ver != null ? $"v{ver.Major}.{ver.Minor}.{ver.Build}" : "v1.0.1";
+        LauncherVersionTextBlock.Text = ver != null ? $"v{ver.Major}.{ver.Minor}.{ver.Build}" : "v1.0.2";
 
         var osDesc = RuntimeInformation.OSDescription;
         var arch = RuntimeInformation.ProcessArchitecture;
         var dotNetVer = Environment.Version;
 
         SysInfoTextBlock.Text = $"OS : {osDesc} ({arch})\nRuntime : .NET {dotNetVer}\nWindows App SDK : 2.6.5 (WinUI 3)\nEmplacement : {AppContext.BaseDirectory}";
+
+        LoadImages();
+    }
+
+    private void LoadImages()
+    {
+        try
+        {
+            var logoPath = Helpers.AppEnvironment.GetAssetPath("p5x_logo.png");
+            if (logoPath != null)
+            {
+                AboutLogoImage.Source = new BitmapImage(new Uri(logoPath));
+                AboutLogoImage.Visibility = Visibility.Visible;
+                AboutFallbackTitlePanel.Visibility = Visibility.Collapsed;
+            }
+
+            var capsulePath = Helpers.AppEnvironment.GetAssetPath("p5x_capsule.jpg")
+                           ?? Helpers.AppEnvironment.GetAssetPath("p5x_header.jpg");
+            if (capsulePath != null)
+            {
+                AboutCapsuleImage.Source = new BitmapImage(new Uri(capsulePath));
+                AboutCapsuleBorder.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                AboutCapsuleBorder.Visibility = Visibility.Collapsed;
+            }
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Instance.Warn($"Erreur chargement images AboutPage: {ex.Message}");
+        }
     }
 
     private async void CheckUpdateButton_Click(object sender, RoutedEventArgs e)

@@ -34,7 +34,7 @@
             <Border
                 Grid.Row="1"
                 CornerRadius="12"
-                Height="210"
+                Height="220"
                 BorderThickness="1"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
                 <Border.Background>
@@ -49,25 +49,44 @@
                     <Image
                         x:Name="HeroBackgroundImage"
                         Stretch="UniformToFill"
-                        Opacity="0.35"
+                        Opacity="0.45"
                         HorizontalAlignment="Right" />
 
                     <Rectangle>
                         <Rectangle.Fill>
                             <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                                <GradientStop Color="#F00D0D10" Offset="0.0" />
-                                <GradientStop Color="#CC121216" Offset="0.5" />
-                                <GradientStop Color="#33000000" Offset="1.0" />
+                                <GradientStop Color="#F50D0D10" Offset="0.0" />
+                                <GradientStop Color="#E6121216" Offset="0.45" />
+                                <GradientStop Color="#66000000" Offset="0.8" />
+                                <GradientStop Color="#1A000000" Offset="1.0" />
                             </LinearGradientBrush>
                         </Rectangle.Fill>
                     </Rectangle>
 
                     <StackPanel VerticalAlignment="Center" Margin="32,0,0,0" Spacing="6" MaxWidth="580" HorizontalAlignment="Left">
-                        <Border Background="{StaticResource P5CrimsonBrush}" CornerRadius="4" Padding="8,3" HorizontalAlignment="Left">
-                            <TextBlock Text="LAUNCHER OFFICIEL COMMUNAUTAIRE" FontSize="11" FontWeight="Bold" Foreground="White" />
-                        </Border>
-                        <TextBlock Text="PERSONA 5" FontSize="36" FontWeight="Black" FontFamily="Segoe UI Variable" Foreground="White" CharacterSpacing="50" />
-                        <TextBlock Text="THE PHANTOM X" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource P5GoldBrush}" CharacterSpacing="80" Margin="0,-4,0,0" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border Background="{StaticResource P5CrimsonBrush}" CornerRadius="4" Padding="8,3" HorizontalAlignment="Left">
+                                <TextBlock Text="COMMUNAUTÉ FR" FontSize="11" FontWeight="Bold" Foreground="White" />
+                            </Border>
+                            <Border Background="#26FFFFFF" CornerRadius="4" Padding="8,3" HorizontalAlignment="Left">
+                                <TextBlock Text="PC STEAM" FontSize="11" FontWeight="SemiBold" Foreground="#E0E0E8" />
+                            </Border>
+                        </StackPanel>
+
+                        <!-- High resolution official Logo -->
+                        <Image
+                            x:Name="HeroLogoImage"
+                            Height="62"
+                            Stretch="Uniform"
+                            HorizontalAlignment="Left"
+                            Margin="0,4,0,2" />
+
+                        <!-- Fallback Typography if logo image missing -->
+                        <StackPanel x:Name="HeroFallbackTitlePanel" Visibility="Collapsed" Spacing="0">
+                            <TextBlock Text="PERSONA 5" FontSize="36" FontWeight="Black" FontFamily="Segoe UI Variable" Foreground="White" CharacterSpacing="50" />
+                            <TextBlock Text="THE PHANTOM X" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource P5GoldBrush}" CharacterSpacing="80" Margin="0,-4,0,0" />
+                        </StackPanel>
+
                         <TextBlock Text="Lancez Persona 5: The Phantom X avec ou sans la traduction française BepInEx en un simple clic."
                                    FontSize="13" Foreground="#D0D0D8" TextWrapping="Wrap" Margin="0,4,0,0" />
                     </StackPanel>
@@ -150,34 +169,51 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Card 1: Game Directory -->
+                <!-- Card 1: Game Directory & Official Capsule Poster -->
                 <Border Grid.Column="0" Style="{StaticResource FluentCardBorderStyle}">
-                    <Grid RowSpacing="8">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xED25;" FontSize="16" Foreground="{StaticResource P5CrimsonBrush}" />
-                            <TextBlock Text="Emplacement du jeu" FontWeight="SemiBold" FontSize="14" />
-                        </StackPanel>
+                        <!-- Official Box Art / Capsule Poster -->
+                        <Border Grid.Column="0" CornerRadius="8" Width="82" Height="123"
+                                BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                VerticalAlignment="Top">
+                            <Grid Background="#16161A">
+                                <Image x:Name="GameCapsuleImage" Stretch="UniformToFill" />
+                                <FontIcon x:Name="GameCapsuleFallbackIcon" Glyph="&#xED25;" FontSize="24" Foreground="{StaticResource P5CrimsonBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" />
+                            </Grid>
+                        </Border>
 
-                        <TextBlock
-                            x:Name="GamePathTextBlock"
-                            Grid.Row="1"
-                            Text="Recherche de l'installation..."
-                            FontSize="12"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            TextTrimming="CharacterEllipsis"
-                            MaxLines="1" />
+                        <Grid Grid.Column="1" RowSpacing="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                            <Button Content="Ouvrir le dossier" Click="OpenGameFolder_Click" Padding="10,4" />
-                            <Button Content="Changer..." Click="ChangeGameFolder_Click" Padding="10,4" />
-                            <Button Content="Détection Steam" Click="AutoDetectGame_Click" Padding="10,4" />
-                        </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xED25;" FontSize="16" Foreground="{StaticResource P5CrimsonBrush}" />
+                                <TextBlock Text="Emplacement du jeu" FontWeight="SemiBold" FontSize="14" />
+                            </StackPanel>
+
+                            <TextBlock
+                                x:Name="GamePathTextBlock"
+                                Grid.Row="1"
+                                Text="Recherche de l'installation..."
+                                FontSize="12"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                TextTrimming="CharacterEllipsis"
+                                MaxLines="2" />
+
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                <Button Content="Ouvrir" Click="OpenGameFolder_Click" Padding="10,4" />
+                                <Button Content="Changer..." Click="ChangeGameFolder_Click" Padding="10,4" />
+                                <Button Content="Détection Steam" Click="AutoDetectGame_Click" Padding="10,4" />
+                            </StackPanel>
+                        </Grid>
                     </Grid>
                 </Border>
 

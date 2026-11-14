@@ -46,7 +46,7 @@ public sealed partial class HomePage : Page
         _isInitializing = true;
         try
         {
-            LoadHeroImage();
+            LoadImages();
             TranslationToggleSwitch.IsOn = _configService.Config.TranslationEnabled;
             RefreshUIState();
 
@@ -77,35 +77,52 @@ public sealed partial class HomePage : Page
         }
     }
 
-    private void LoadHeroImage()
+    private void LoadImages()
     {
         try
         {
-            var dirs = new[]
+            // 1. Hero widescreen background
+            var heroPath = Helpers.AppEnvironment.GetAssetPath("p5x_hero.jpg")
+                        ?? Helpers.AppEnvironment.GetAssetPath("p5x_header.jpg")
+                        ?? Helpers.AppEnvironment.GetAssetPath("keyart.png")
+                        ?? Helpers.AppEnvironment.GetAssetPath("banner.jpg");
+            if (heroPath != null)
             {
-                Path.Combine(Helpers.AppEnvironment.AppDirectory, "Assets"),
-                Path.Combine(AppContext.BaseDirectory, "Assets")
-            };
-            var candidates = new[] { "keyart.png", "banner.png", "keyart.jpg", "banner.jpg", "p5x.png", "p5x.jpg" };
+                HeroBackgroundImage.Source = new BitmapImage(new Uri(heroPath));
+            }
 
-            foreach (var dir in dirs)
+            // 2. Official P5X transparent logo
+            var logoPath = Helpers.AppEnvironment.GetAssetPath("p5x_logo.png");
+            if (logoPath != null)
             {
-                if (!Directory.Exists(dir)) continue;
+                HeroLogoImage.Source = new BitmapImage(new Uri(logoPath));
+                HeroLogoImage.Visibility = Visibility.Visible;
+                HeroFallbackTitlePanel.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                HeroLogoImage.Visibility = Visibility.Collapsed;
+                HeroFallbackTitlePanel.Visibility = Visibility.Visible;
+            }
 
-                foreach (var candidate in candidates)
-                {
-                    var fullPath = Path.Combine(dir, candidate);
-                    if (File.Exists(fullPath))
-                    {
-                        HeroBackgroundImage.Source = new BitmapImage(new Uri(fullPath));
-                        return;
-                    }
-                }
+            // 3. Official Vertical Capsule Poster (Box Art)
+            var capsulePath = Helpers.AppEnvironment.GetAssetPath("p5x_capsule.jpg")
+                           ?? Helpers.AppEnvironment.GetAssetPath("p5x_header.jpg");
+            if (capsulePath != null)
+            {
+                GameCapsuleImage.Source = new BitmapImage(new Uri(capsulePath));
+                GameCapsuleImage.Visibility = Visibility.Visible;
+                GameCapsuleFallbackIcon.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                GameCapsuleImage.Visibility = Visibility.Collapsed;
+                GameCapsuleFallbackIcon.Visibility = Visibility.Visible;
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore hero image loading errors
+            LoggerService.Instance.Warn($"Erreur de chargement des images HomePage : {ex.Message}");
         }
     }
 

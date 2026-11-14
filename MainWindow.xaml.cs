@@ -5,6 +5,7 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Graphics;
 using LauncherP5XFr.Services;
 using LauncherP5XFr.Views;
@@ -37,6 +38,7 @@ public sealed partial class MainWindow : Window
         }
 
         ConfigureWindow();
+        LoadWindowAssets();
         ApplyTheme(_configService.Config.Theme);
 
         // Immediate navigation to HomePage on creation
@@ -98,6 +100,31 @@ public sealed partial class MainWindow : Window
             {
                 // Fallback to default
             }
+        }
+    }
+
+    private void LoadWindowAssets()
+    {
+        try
+        {
+            var bgPath = Helpers.AppEnvironment.GetAssetPath("p5x_hero_blur.jpg")
+                      ?? Helpers.AppEnvironment.GetAssetPath("p5x_hero.jpg");
+            if (bgPath != null)
+            {
+                WindowBackgroundImage.Source = new BitmapImage(new Uri(bgPath));
+            }
+
+            var logoPath = Helpers.AppEnvironment.GetAssetPath("p5x_logo.png");
+            if (logoPath != null)
+            {
+                TitleBarLogoImage.Source = new BitmapImage(new Uri(logoPath));
+                TitleBarLogoImage.Visibility = Visibility.Visible;
+                TitleBarIconBorder.Visibility = Visibility.Collapsed;
+            }
+        }
+        catch (Exception ex)
+        {
+            LoggerService.Instance.Warn($"Impossible de charger les images de MainWindow: {ex.Message}");
         }
     }
 

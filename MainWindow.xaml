@@ -15,6 +15,16 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <!-- Ambient Wallpaper Background behind everything -->
+        <Image
+            x:Name="WindowBackgroundImage"
+            Grid.RowSpan="2"
+            Stretch="UniformToFill"
+            Opacity="0.08"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            IsHitTestVisible="False" />
+
         <!-- Custom Fluent Windows 11 TitleBar -->
         <Grid x:Name="AppTitleBar" Grid.Row="0" Background="Transparent">
             <Grid.ColumnDefinitions>
@@ -24,7 +34,8 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0" Spacing="10">
-                <Border Background="{StaticResource P5CrimsonBrush}" Width="24" Height="24" CornerRadius="4" VerticalAlignment="Center">
+                <Image x:Name="TitleBarLogoImage" Height="22" Stretch="Uniform" VerticalAlignment="Center" Visibility="Collapsed" />
+                <Border x:Name="TitleBarIconBorder" Background="{StaticResource P5CrimsonBrush}" Width="24" Height="24" CornerRadius="4" VerticalAlignment="Center">
                     <FontIcon Glyph="&#xE7FC;" FontSize="13" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <TextBlock Text="PERSONA 5: THE PHANTOM X" FontWeight="Bold" FontSize="13" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
