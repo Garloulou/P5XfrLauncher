@@ -9,7 +9,7 @@
   "steamAppId": "3061570",
   "customArguments": "",
   "translationRepo": "",
-  "launcherRepo": "",
+  "launcherRepo": "Garloulou/P5XfrLauncher",
   "bepInExRepo": "BepInEx/BepInEx",
   "autoInstallBepInEx": true,
   "translationAssetPattern": ""
