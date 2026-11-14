@@ -67,9 +67,14 @@ public sealed class GitHubUpdateService : IGitHubUpdateService
         if (string.IsNullOrWhiteSpace(gameDir) || !Directory.Exists(gameDir))
             return null;
 
-        var versionFile = Path.Combine(gameDir, "translation_version.json");
+        var targetDir = GameLocator.GetGameClientDirectory(gameDir);
+        var versionFile = Path.Combine(targetDir, "translation_version.json");
         if (!File.Exists(versionFile))
-            return null;
+        {
+            versionFile = Path.Combine(gameDir, "translation_version.json");
+            if (!File.Exists(versionFile))
+                return null;
+        }
 
         try
         {
@@ -235,13 +240,15 @@ public sealed class GitHubUpdateService : IGitHubUpdateService
                 _logger.Info($"SHA256 calculé pour le fichier : {computedHash} (aucun hash spécifié dans la release)");
             }
 
+            var targetDir = GameLocator.GetGameClientDirectory(gameDir);
+
             // 4. Create Backup before extraction
             progress.Report(new DownloadProgressInfo(asset.Size, asset.Size, 100, 0, "Création d'une sauvegarde de sécurité..."));
-            backupPath = CreateTranslationBackup(gameDir);
+            backupPath = CreateTranslationBackup(targetDir);
 
-            // 5. Atomic Extraction
-            progress.Report(new DownloadProgressInfo(asset.Size, asset.Size, 100, 0, "Extraction des fichiers de traduction..."));
-            ExtractZipSafely(tempZipPath, gameDir);
+            // 5. Atomic Extraction into game client directory (client/pc)
+            progress.Report(new DownloadProgressInfo(asset.Size, asset.Size, 100, 0, $"Extraction des fichiers dans {Path.GetFileName(targetDir)}..."));
+            ExtractZipSafely(tempZipPath, targetDir);
 
             // 6. Write version info
             var versionInfo = new TranslationVersionInfo
@@ -254,12 +261,15 @@ public sealed class GitHubUpdateService : IGitHubUpdateService
                 Sha256 = computedHash
             };
 
-            var versionFile = Path.Combine(gameDir, "translation_version.json");
             var versionJson = JsonSerializer.Serialize(versionInfo, AppJsonContext.Default.TranslationVersionInfo);
-            File.WriteAllText(versionFile, versionJson);
+            File.WriteAllText(Path.Combine(targetDir, "translation_version.json"), versionJson);
+            if (!string.Equals(targetDir, gameDir, StringComparison.OrdinalIgnoreCase))
+            {
+                try { File.WriteAllText(Path.Combine(gameDir, "translation_version.json"), versionJson); } catch { }
+            }
 
             // 7. Cleanup old backups (keep last 3)
-            CleanupOldBackups(gameDir, 3);
+            CleanupOldBackups(targetDir, 3);
 
             _logger.Info($"Mise à jour de la traduction vers {release.TagName} effectuée avec succès.");
             progress.Report(new DownloadProgressInfo(asset.Size, asset.Size, 100, 0, "Mise à jour terminée avec succès !"));
@@ -441,16 +451,24 @@ public sealed class GitHubUpdateService : IGitHubUpdateService
         if (string.IsNullOrWhiteSpace(gameDir) || !Directory.Exists(gameDir))
             return false;
 
-        var backupRoot = Path.Combine(gameDir, "backups");
-        if (!Directory.Exists(backupRoot))
-            return false;
+        var targetDir = GameLocator.GetGameClientDirectory(gameDir);
+        var targetBackup = Path.Combine(targetDir, "backups");
+        if (Directory.Exists(targetBackup) && Directory.GetDirectories(targetBackup, "BepInEx_backup_*").Length > 0)
+            return true;
 
-        return Directory.GetDirectories(backupRoot, "BepInEx_backup_*").Length > 0;
+        var rootBackup = Path.Combine(gameDir, "backups");
+        return Directory.Exists(rootBackup) && Directory.GetDirectories(rootBackup, "BepInEx_backup_*").Length > 0;
     }
 
     public Task RollbackTranslationAsync(string gameDir)
     {
-        var backupRoot = Path.Combine(gameDir, "backups");
+        var targetDir = GameLocator.GetGameClientDirectory(gameDir);
+        var backupRoot = Path.Combine(targetDir, "backups");
+        if (!Directory.Exists(backupRoot) || Directory.GetDirectories(backupRoot, "BepInEx_backup_*").Length == 0)
+        {
+            backupRoot = Path.Combine(gameDir, "backups");
+        }
+
         if (!Directory.Exists(backupRoot))
         {
             throw new DirectoryNotFoundException("Aucun dossier de sauvegarde trouvé.");
@@ -467,7 +485,11 @@ public sealed class GitHubUpdateService : IGitHubUpdateService
 
         var latestBackup = backups[0];
         _logger.Info($"Restauration de la traduction depuis : {latestBackup}");
-        RestoreFromBackup(gameDir, latestBackup);
+        RestoreFromBackup(targetDir, latestBackup);
+        if (!string.Equals(targetDir, gameDir, StringComparison.OrdinalIgnoreCase))
+        {
+            RestoreFromBackup(gameDir, latestBackup);
+        }
         return Task.CompletedTask;
     }
 

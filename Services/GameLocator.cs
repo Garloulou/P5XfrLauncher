@@ -11,6 +11,7 @@ namespace LauncherP5XFr.Services;
 public interface IGameLocator
 {
     string? GetGameDirectory();
+    string GetGameClientDirectory();
     string? GetExecutablePath();
     bool IsValidGameDirectory(string? directoryPath, out string detectedExe);
     bool IsGameRunning();
@@ -47,6 +48,32 @@ public sealed class GameLocator : IGameLocator
     public string? GetGameDirectory()
     {
         return _configService.Config.GamePath;
+    }
+
+    public string GetGameClientDirectory()
+    {
+        return GetGameClientDirectory(GetGameDirectory());
+    }
+
+    public static string GetGameClientDirectory(string? rootDir)
+    {
+        if (string.IsNullOrWhiteSpace(rootDir))
+            return string.Empty;
+
+        var trimmed = rootDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        if (trimmed.EndsWith(@"client\pc", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.EndsWith(@"client/pc", StringComparison.OrdinalIgnoreCase))
+        {
+            return trimmed;
+        }
+
+        var clientPc = Path.Combine(trimmed, "client", "pc");
+        if (Directory.Exists(clientPc))
+        {
+            return clientPc;
+        }
+
+        return trimmed;
     }
 
     public string? GetExecutablePath()

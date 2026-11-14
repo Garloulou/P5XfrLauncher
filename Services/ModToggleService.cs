@@ -37,12 +37,21 @@ public sealed class ModToggleService : IModToggleService
         if (string.IsNullOrWhiteSpace(gameDir) || !Directory.Exists(gameDir))
             return false;
 
-        var winhttpActive = Path.Combine(gameDir, "winhttp.dll");
-        var winhttpDisabled = Path.Combine(gameDir, "winhttp.dll.disabled");
-        var bepInExDir = Path.Combine(gameDir, "BepInEx");
-        var doorstopConfig = Path.Combine(gameDir, "doorstop_config.ini");
+        var targetDir = GameLocator.GetGameClientDirectory(gameDir);
+        var winhttpActive = Path.Combine(targetDir, "winhttp.dll");
+        var winhttpDisabled = Path.Combine(targetDir, "winhttp.dll.disabled");
+        var bepInExDir = Path.Combine(targetDir, "BepInEx");
+        var doorstopConfig = Path.Combine(targetDir, "doorstop_config.ini");
 
-        return File.Exists(winhttpActive) || File.Exists(winhttpDisabled) || Directory.Exists(bepInExDir) || File.Exists(doorstopConfig);
+        if (File.Exists(winhttpActive) || File.Exists(winhttpDisabled) || Directory.Exists(bepInExDir) || File.Exists(doorstopConfig))
+            return true;
+
+        var rootWinhttpActive = Path.Combine(gameDir, "winhttp.dll");
+        var rootWinhttpDisabled = Path.Combine(gameDir, "winhttp.dll.disabled");
+        var rootBepInExDir = Path.Combine(gameDir, "BepInEx");
+        var rootDoorstopConfig = Path.Combine(gameDir, "doorstop_config.ini");
+
+        return File.Exists(rootWinhttpActive) || File.Exists(rootWinhttpDisabled) || Directory.Exists(rootBepInExDir) || File.Exists(rootDoorstopConfig);
     }
 
     public bool IsTranslationActive(string? gameDir)
@@ -50,12 +59,13 @@ public sealed class ModToggleService : IModToggleService
         if (string.IsNullOrWhiteSpace(gameDir) || !Directory.Exists(gameDir))
             return false;
 
-        var winhttpActive = Path.Combine(gameDir, "winhttp.dll");
-        var winhttpDisabled = Path.Combine(gameDir, "winhttp.dll.disabled");
+        var targetDir = GameLocator.GetGameClientDirectory(gameDir);
+        var winhttpActive = Path.Combine(targetDir, "winhttp.dll");
+        var winhttpDisabled = Path.Combine(targetDir, "winhttp.dll.disabled");
 
         if (_configService.Config.UseDoorstopConfigToggle)
         {
-            var doorstopConfig = Path.Combine(gameDir, "doorstop_config.ini");
+            var doorstopConfig = Path.Combine(targetDir, "doorstop_config.ini");
             if (File.Exists(doorstopConfig))
             {
                 var content = File.ReadAllText(doorstopConfig);
@@ -67,7 +77,7 @@ public sealed class ModToggleService : IModToggleService
             }
         }
 
-        // Primary check: winhttp.dll must exist and not be disabled
+        // Primary check: winhttp.dll in targetDir (client/pc) must exist and not be disabled
         if (File.Exists(winhttpActive))
         {
             return true;
@@ -77,6 +87,12 @@ public sealed class ModToggleService : IModToggleService
         {
             return false;
         }
+
+        // Fallback root check
+        if (File.Exists(Path.Combine(gameDir, "winhttp.dll")))
+            return true;
+        if (File.Exists(Path.Combine(gameDir, "winhttp.dll.disabled")))
+            return false;
 
         return false;
     }

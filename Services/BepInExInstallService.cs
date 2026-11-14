@@ -62,24 +62,18 @@ public sealed class BepInExInstallService : IBepInExInstallService
         if (string.IsNullOrWhiteSpace(gameDir) || !Directory.Exists(gameDir))
             return false;
 
-        // Check in root gameDir
+        // 1. Priority check in client/pc
+        var clientPcDir = GameLocator.GetGameClientDirectory(gameDir);
+        var pcWinhttp = File.Exists(Path.Combine(clientPcDir, "winhttp.dll")) || File.Exists(Path.Combine(clientPcDir, "winhttp.dll.disabled"));
+        var pcBepInEx = Directory.Exists(Path.Combine(clientPcDir, "BepInEx", "core"));
+        if (pcWinhttp && pcBepInEx)
+            return true;
+
+        // 2. Fallback check in root gameDir
         var rootWinhttp = File.Exists(Path.Combine(gameDir, "winhttp.dll")) || File.Exists(Path.Combine(gameDir, "winhttp.dll.disabled"));
         var rootBepInEx = Directory.Exists(Path.Combine(gameDir, "BepInEx", "core"));
 
-        if (rootWinhttp && rootBepInEx)
-            return true;
-
-        // Check in client/pc if present
-        var clientPcDir = Path.Combine(gameDir, "client", "pc");
-        if (Directory.Exists(clientPcDir))
-        {
-            var pcWinhttp = File.Exists(Path.Combine(clientPcDir, "winhttp.dll")) || File.Exists(Path.Combine(clientPcDir, "winhttp.dll.disabled"));
-            var pcBepInEx = Directory.Exists(Path.Combine(clientPcDir, "BepInEx", "core"));
-            if (pcWinhttp && pcBepInEx)
-                return true;
-        }
-
-        return false;
+        return rootWinhttp && rootBepInEx;
     }
 
     public async Task<(bool success, string message)> InstallBepInExAsync(
@@ -140,42 +134,41 @@ public sealed class BepInExInstallService : IBepInExInstallService
                 progress?.Report(new DownloadProgressInfo(0, asset.Size, 0, 0, $"Téléchargement de {asset.Name}..."));
                 await DownloadAssetWithProgressAsync(asset.BrowserDownloadUrl, asset.Size, tempZip, progress, ct).ConfigureAwait(false);
 
-                // Extract to game directory
-                progress?.Report(new DownloadProgressInfo(asset.Size, asset.Size, 100, 0, "Extraction de BepInEx dans le dossier du jeu..."));
-                _logger.Info($"Extraction de BepInEx dans '{gameDir}'...");
-                ExtractZipSafely(tempZip, gameDir);
+                // Extract to game client directory (client/pc)
+                var targetDir = GameLocator.GetGameClientDirectory(gameDir);
+                progress?.Report(new DownloadProgressInfo(asset.Size, asset.Size, 100, 0, $"Extraction de BepInEx dans {Path.GetFileName(targetDir)}..."));
+                _logger.Info($"Extraction de BepInEx dans '{targetDir}'...");
+                ExtractZipSafely(tempZip, targetDir);
 
-                // If client/pc subdirectory exists with Unity player, duplicate proxy or place configuration
-                var clientPcDir = Path.Combine(gameDir, "client", "pc");
-                if (Directory.Exists(clientPcDir) && File.Exists(Path.Combine(clientPcDir, "UnityPlayer.dll")))
+                // If targetDir is client/pc, also ensure doorstop and proxy are present in root for compatibility
+                if (!string.Equals(targetDir, gameDir, StringComparison.OrdinalIgnoreCase))
                 {
                     try
                     {
-                        var winhttpSrc = Path.Combine(gameDir, "winhttp.dll");
-                        var winhttpDst = Path.Combine(clientPcDir, "winhttp.dll");
+                        var winhttpSrc = Path.Combine(targetDir, "winhttp.dll");
+                        var winhttpDst = Path.Combine(gameDir, "winhttp.dll");
                         if (File.Exists(winhttpSrc) && !File.Exists(winhttpDst))
                         {
                             File.Copy(winhttpSrc, winhttpDst, true);
                         }
 
-                        var doorstopSrc = Path.Combine(gameDir, "doorstop_config.ini");
-                        var doorstopDst = Path.Combine(clientPcDir, "doorstop_config.ini");
+                        var doorstopSrc = Path.Combine(targetDir, "doorstop_config.ini");
+                        var doorstopDst = Path.Combine(gameDir, "doorstop_config.ini");
                         if (File.Exists(doorstopSrc) && !File.Exists(doorstopDst))
                         {
-                            // Doorstop in client/pc points to BepInEx in root or client/pc
                             File.Copy(doorstopSrc, doorstopDst, true);
                         }
                     }
                     catch (Exception syncEx)
                     {
-                        _logger.Warn($"Note: Synchronisation client/pc : {syncEx.Message}");
+                        _logger.Warn($"Note: Synchronisation vers root : {syncEx.Message}");
                     }
                 }
 
-                _logger.Info($"BepInEx {release.TagName} installé avec succès dans '{gameDir}'.");
+                _logger.Info($"BepInEx {release.TagName} installé avec succès dans '{targetDir}'.");
                 progress?.Report(new DownloadProgressInfo(asset.Size, asset.Size, 100, 0, $"BepInEx ({release.TagName}) installé avec succès !"));
 
-                return (true, $"BepInEx {release.TagName} installé avec succès !");
+                return (true, $"BepInEx {release.TagName} installé avec succès dans {Path.GetFileName(targetDir)} !");
             }
             finally
             {
