@@ -32,11 +32,12 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Game Capsule Art -->
-                    <Border x:Name="AboutCapsuleBorder" Grid.Column="0" CornerRadius="8" Width="72" Height="108"
+                    <!-- App Icon / Artwork -->
+                    <Border x:Name="AboutCapsuleBorder" Grid.Column="0" CornerRadius="12" Width="84" Height="84"
                             BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             VerticalAlignment="Center">
                         <Grid Background="#1A1A1E">
+                            <FontIcon x:Name="AboutFallbackIcon" Glyph="&#xE7FC;" FontSize="32" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             <Image x:Name="AboutCapsuleImage" Stretch="UniformToFill" />
                         </Grid>
                     </Border>

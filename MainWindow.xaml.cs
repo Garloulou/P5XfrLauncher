@@ -114,12 +114,14 @@ public sealed partial class MainWindow : Window
                 WindowBackgroundImage.Source = new BitmapImage(new Uri(bgPath));
             }
 
-            var logoPath = Helpers.AppEnvironment.GetAssetPath("p5x_logo.png");
+            var logoPath = Helpers.AppEnvironment.GetAssetPath("AppIcon.png")
+                        ?? Helpers.AppEnvironment.GetAssetPath("Image_App_P5X.jpg")
+                        ?? Helpers.AppEnvironment.GetAssetPath("p5x_logo.png");
             if (logoPath != null)
             {
                 TitleBarLogoImage.Source = new BitmapImage(new Uri(logoPath));
                 TitleBarLogoImage.Visibility = Visibility.Visible;
-                TitleBarIconBorder.Visibility = Visibility.Collapsed;
+                TitleBarFallbackIcon.Visibility = Visibility.Collapsed;
             }
         }
         catch (Exception ex)

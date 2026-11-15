@@ -40,16 +40,20 @@ public sealed partial class AboutPage : Page
                 AboutFallbackTitlePanel.Visibility = Visibility.Collapsed;
             }
 
-            var capsulePath = Helpers.AppEnvironment.GetAssetPath("p5x_capsule.jpg")
+            var capsulePath = Helpers.AppEnvironment.GetAssetPath("AppIcon.png")
+                           ?? Helpers.AppEnvironment.GetAssetPath("Image_App_P5X.jpg")
+                           ?? Helpers.AppEnvironment.GetAssetPath("p5x_capsule.jpg")
                            ?? Helpers.AppEnvironment.GetAssetPath("p5x_header.jpg");
             if (capsulePath != null)
             {
                 AboutCapsuleImage.Source = new BitmapImage(new Uri(capsulePath));
                 AboutCapsuleBorder.Visibility = Visibility.Visible;
+                AboutFallbackIcon.Visibility = Visibility.Collapsed;
             }
             else
             {
-                AboutCapsuleBorder.Visibility = Visibility.Collapsed;
+                AboutCapsuleImage.Visibility = Visibility.Collapsed;
+                AboutFallbackIcon.Visibility = Visibility.Visible;
             }
         }
         catch (Exception ex)
