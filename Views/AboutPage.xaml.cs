@@ -17,7 +17,7 @@ public sealed partial class AboutPage : Page
         InitializeComponent();
 
         var ver = Assembly.GetExecutingAssembly().GetName().Version;
-        LauncherVersionTextBlock.Text = ver != null ? $"v{ver.Major}.{ver.Minor}.{ver.Build}" : "v1.0.2";
+        LauncherVersionTextBlock.Text = ver != null ? $"v{ver.Major}.{ver.Minor}.{ver.Build}" : "v1.0.3";
 
         var osDesc = RuntimeInformation.OSDescription;
         var arch = RuntimeInformation.ProcessArchitecture;
